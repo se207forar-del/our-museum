@@ -34,6 +34,9 @@ form.addEventListener('submit',async event=>{
  event.preventDefault();if(submit.disabled)return;
  const passphrase=input.value.normalize('NFC').trim();if(!passphrase){message.textContent='告訴我，我們第一次相遇的日期。';input.focus();return;}
  if(!globalThis.crypto?.subtle){message.textContent='請透過 HTTPS 網址開啟，或使用本機預覽伺服器。';return;}
+ // Unlock audio during the actual door-opening gesture, before decryption awaits.
+ try{const AudioContext=window.AudioContext||window.webkitAudioContext;if(AudioContext){const context=globalThis.__museumAudioContext??=new AudioContext();context.resume().catch(()=>{});const silent=context.createBufferSource();silent.buffer=context.createBuffer(1,1,context.sampleRate);silent.connect(context.destination);silent.start();}}catch{}
+ input.blur();
  submit.disabled=true;submit.textContent='正在為我們點亮回憶…';message.textContent='';
  let data;try{data=await loadCollection();}catch{message.textContent='回憶暫時沒有載入成功，請確認網路後再試一次。';restoreButton();return;}
  let collection;
